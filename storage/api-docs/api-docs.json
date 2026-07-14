@@ -1,0 +1,222 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "UEE API",
+        "description": "Українська енергетична біржа — REST API",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Local"
+        }
+    ],
+    "paths": {
+        "/api/company": {
+            "post": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Створити або оновити компанію",
+                "description": "Створює нову компанію (status=created), оновлює якщо дані змінились (status=updated), або повертає дублікат (status=duplicate).",
+                "operationId": "storeCompany",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreCompanyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Компанію створено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanyStatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Компанію оновлено або дані не змінились (дублікат)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanyStatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Помилка валідації",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The name field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "name": [
+                                                    "The name field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/company/{edrpou}/versions": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Отримати всі версії компанії",
+                "operationId": "getCompanyVersions",
+                "parameters": [
+                    {
+                        "name": "edrpou",
+                        "in": "path",
+                        "description": "ЄДРПОУ компанії (8–10 символів)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "37027819",
+                            "maxLength": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список версій компанії",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CompanyVersion"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Компанію не знайдено",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Company not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CompanyStatusResponse": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "created",
+                        "enum": [
+                            "created",
+                            "updated",
+                            "duplicate"
+                        ]
+                    },
+                    "company_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "version": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "StoreCompanyRequest": {
+                "required": [
+                    "name",
+                    "edrpou",
+                    "address"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "ТОВ Українська енергетична біржа",
+                        "maxLength": 256
+                    },
+                    "edrpou": {
+                        "type": "string",
+                        "example": "37027819",
+                        "maxLength": 10
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "01001, Україна, м. Київ, вул. Хрещатик, 44"
+                    }
+                },
+                "type": "object"
+            },
+            "CompanyVersion": {
+                "properties": {
+                    "version": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "ТОВ Українська енергетична біржа"
+                    },
+                    "edrpou": {
+                        "type": "string",
+                        "example": "37027819"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "01001, Україна, м. Київ, вул. Хрещатик, 44"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-07-14T08:04:19.000000Z"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Company",
+            "description": "Company"
+        }
+    ]
+}

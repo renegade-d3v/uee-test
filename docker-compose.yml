@@ -1,0 +1,32 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    image: uee-app:local
+    container_name: uee_app
+    working_dir: /var/www
+    entrypoint: ["/var/www/.docker/entrypoint.sh"]
+    volumes:
+      - .:/var/www
+    environment:
+      - APP_ENV=local
+    networks:
+      - uee
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: uee_nginx
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www
+      - ./.docker/local/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - uee
+
+networks:
+  uee:
+    driver: bridge
