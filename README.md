@@ -12,7 +12,7 @@ REST API for Ukrainian Energy Exchange — company data management with full ver
 ## Getting started
 
 ```bash
-git clone <repo-url> uee
+git clone [<repo-url>](https://github.com/renegade-d3v/uee-test) uee
 cd uee
 cp .env.example .env
 ```
